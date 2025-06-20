@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "MinGW",
+            "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
+            "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/src/**",
+                "C:/msys64/mingw32/include",
+                "C:/msys64/mingw32/include/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "true",
+                "false"
+            ],
+            "intelliSenseMode": "windows-gcc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "cStandard": "c23"
+        }
+    ],
+    "version": 4
+}

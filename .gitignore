@@ -1,0 +1,15 @@
+/test
+/build
+/example
+
+# zno defaults
+/.zno
+/.build
+/.templates
+# end zno defaults
+
+# zno defaults
+/.zno
+/.build
+/.templates
+# end zno defaults
