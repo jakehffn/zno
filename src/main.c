@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <time.h>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -176,14 +177,13 @@ void default_command(int argc, char* argv[]) {
         if (note_content)   printf("  With content: %s\n", note_content);
         if (note_tags)      printf("  With tags: %s\n", note_tags);
         if (note_title)     printf("  With title: %s\n", note_title);
-        
+
         if (open_note_after_create) {
-            printf("Opening note");
+            printf("Opening note\n");
         } else {
-            printf("Not opening note");
+            printf("Not opening note\n");
         }
     }
-
 
     switch(non_create_action) {
         case 's': {
@@ -210,6 +210,18 @@ void default_command(int argc, char* argv[]) {
     if (note_tags)      free(note_tags);
     if (note_title)     free(note_title);
     if (non_create_arg) free(non_create_arg);
+
+    char fmt[64], buf[64];
+    struct timeval tv;
+    struct tm* tm;
+
+    mingw_gettimeofday(&tv, NULL);
+    time_t t = tv.tv_sec;
+    if((tm = gmtime(&t)) != NULL) {
+        strftime(fmt, sizeof(fmt), "%Y-%m-%dT%H_%M_%S_%%06u.md", tm);
+        snprintf(buf, sizeof(buf), fmt, tv.tv_usec);
+        printf("%s\n", buf); 
+    }
 }
 
 void init_command(int argc, char* argv[]) {
