@@ -1,0 +1,1 @@
+$env:ZNO_DIR = ".\example"
