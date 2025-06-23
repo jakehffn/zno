@@ -55,6 +55,22 @@ bool ensure_directory(const char* path) {
     return true;
 }
 
+char* get_timestamp_str(void) {
+    static char fmt[32]; 
+    static char buf[32];
+    struct timeval tv;
+    struct tm* tm;
+
+    mingw_gettimeofday(&tv, NULL);
+    time_t t = tv.tv_sec;
+    if((tm = gmtime(&t)) != NULL) {
+        strftime(fmt, sizeof(fmt), "%Y-%m-%dT%H_%M_%S_%%06u", tm);
+        snprintf(buf, sizeof(buf), fmt, tv.tv_usec);
+    }
+
+    return buf;
+}
+
 char* get_optional_arg(char* arg, int argc, char* argv[]) {
     // optional arg passed as -oarg for optional parameter for -o 'arg' will be in optarg
     //  otherwise, it needs to be manually captured
@@ -71,8 +87,70 @@ char* get_optional_arg(char* arg, int argc, char* argv[]) {
     return arg;
 }
 
+char* create_note(const char* content, const char* title, char* tags) {
+    const char* zno_dir = getenv("ZNO_DIR");
+    if (zno_dir == NULL) {
+        print_error("env variable ZNO_DIR is not set");
+        return NULL;
+    }
+
+    const char* file_name = get_timestamp_str();
+
+    static char path[PATH_MAX+1];
+    snprintf(path, PATH_MAX, "%s\\%s.md", zno_dir, file_name);
+
+    FILE* fp = fopen(path, "a");
+
+    if (fp == NULL) {
+        print_error("Failed to open file %s\n    %s", path, strerror(errno));
+        return NULL;
+    }
+
+    fprintf(fp, "---\n");
+
+    if (title) {
+        fprintf(fp, "title: %s\n", title);
+    }
+
+    fprintf(fp, "tags:\n");
+    if (tags) {
+        char* tag = tags;
+        bool exit = false;
+        for (char* c = tags;; ++c) {
+            if ((*c == ',' || (exit = (*c == 0)))) {
+                if (tag != c) {
+                    // Trim tag begining
+                    while (*tag == ' ') ++tag;
+                    // Trim tag end
+                    char* t = c;
+                    while (*(--t) == ' ') *t = 0;
+                    *c = 0;
+                    fprintf(fp, "  - %s\n", tag);
+                }
+                tag = c+1;
+            }
+            
+            if (exit) break;
+        }
+    }
+
+    fprintf(fp, "---\n\n");
+
+    if (title) {
+        fprintf(fp, "# %s\n", title);
+    }
+
+    if (content) {
+        fprintf(fp, content);
+    }
+
+    fclose(fp);
+
+    return path;
+}
+
 void default_command(int argc, char* argv[]) {
-    bool create_note = true;
+    bool should_create_note = true;
     bool open_note_after_create = true;
 
     char* note_content = NULL;
@@ -149,7 +227,7 @@ void default_command(int argc, char* argv[]) {
             }
             // Search
             case 's': {
-                create_note = false;
+                should_create_note = false;
 
                 if (!non_create_action) {
                     non_create_action = opt;
@@ -170,18 +248,16 @@ void default_command(int argc, char* argv[]) {
     char* zno_editor = getenv("ZNO_EDITOR");
     if (zno_editor == NULL) {
         print_warning("env variable ZNO_EDITOR is not set\ndefaulting to \"code\"");
+        zno_editor = "code";
     }
 
-    if (create_note) {
-        printf("Creating note\n");
-        if (note_content)   printf("  With content: %s\n", note_content);
-        if (note_tags)      printf("  With tags: %s\n", note_tags);
-        if (note_title)     printf("  With title: %s\n", note_title);
+    if (should_create_note) {
+        const char* path = create_note(note_content, note_title, note_tags);
 
-        if (open_note_after_create) {
-            printf("Opening note\n");
-        } else {
-            printf("Not opening note\n");
+        if (open_note_after_create && path) {
+            char command_buf[PATH_MAX + 64];
+            sprintf(command_buf, "%s %s\n", zno_editor, path);
+            system(command_buf);
         }
     }
 
@@ -210,22 +286,10 @@ void default_command(int argc, char* argv[]) {
     if (note_tags)      free(note_tags);
     if (note_title)     free(note_title);
     if (non_create_arg) free(non_create_arg);
-
-    char fmt[64], buf[64];
-    struct timeval tv;
-    struct tm* tm;
-
-    mingw_gettimeofday(&tv, NULL);
-    time_t t = tv.tv_sec;
-    if((tm = gmtime(&t)) != NULL) {
-        strftime(fmt, sizeof(fmt), "%Y-%m-%dT%H_%M_%S_%%06u.md", tm);
-        snprintf(buf, sizeof(buf), fmt, tv.tv_usec);
-        printf("%s\n", buf); 
-    }
 }
 
 void init_command(int argc, char* argv[]) {
-    char path[PATH_MAX] = "\0";
+    char path[PATH_MAX+1] = "\0";
     char* base_path_end = path;
 
     // Use path if given, otherwise make relative to cwd
@@ -255,7 +319,7 @@ void init_command(int argc, char* argv[]) {
 
     // Create/append to .gitignore
     *base_path_end = 0;
-    strcat(path, ".gitignore");;
+    strncat(path, ".gitignore", PATH_MAX);
     FILE* fp = fopen(path, "a");
     if (fp != NULL) {
         fprintf(
@@ -264,7 +328,8 @@ void init_command(int argc, char* argv[]) {
             "/.zno\n"
             "/.build\n"
             "/.templates\n"
-            "# end zno defaults\n");
+            "# end zno defaults\n"
+        );
         fclose(fp);
     } else {
         print_error("Failed to open file %s\n    %s", path, strerror(errno));
