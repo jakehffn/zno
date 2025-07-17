@@ -8,7 +8,7 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"label": "Execute Ninja (Debug)",
+			"label": "Build (MinGW Debug)",
 			"command": "ninja",
 			"options": {
 				"cwd": "${workspaceFolder}/build/mingw/debug"
@@ -28,7 +28,7 @@
 		},
 		{
 			"type": "shell",
-			"label": "Run CMake (Debug)",
+			"label": "Configure (MinGW Debug)",
 			"command": "cmake",
 			"args": [
 				"-DCMAKE_BUILD_TYPE=Debug",
@@ -50,7 +50,27 @@
 		},
 		{
 			"type": "shell",
-			"label": "Execute Ninja (Release)",
+			"label": "Install (MinGW Release)",
+			"command": "ninja zno install",
+			"options": {
+				"cwd": "${workspaceFolder}/build/mingw/release"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Build (MinGW Release)",
 			"command": "ninja",
 			"options": {
 				"cwd": "${workspaceFolder}/build/mingw/release"
@@ -70,7 +90,7 @@
 		},
 		{
 			"type": "shell",
-			"label": "Run CMake (Release)",
+			"label": "Configure (MinGW Release)",
 			"command": "cmake",
 			"args": [
 				"-DCMAKE_BUILD_TYPE=Release",
@@ -92,49 +112,7 @@
 		},
 		{
 			"type": "shell",
-			"label": "Execute Ninja (RelWithDebInfo)",
-			"command": "ninja",
-			"options": {
-				"cwd": "${workspaceFolder}/examples/balatro_feel/build/mingw/rel_with_deb_info"
-			},
-			"group": {
-				"kind": "build",
-				"isDefault": false
-			},
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		},
-		{
-			"type": "shell",
-			"label": "Run CMake (RelWithDebInfo)",
-			"command": "cmake",
-			"args": [
-				"-DCMAKE_BUILD_TYPE=RelWithDebInfo",
-				"../../..",
-				"-G",
-				"Ninja",
-			],
-			"options": {
-				"cwd": "${workspaceFolder}build/mingw/rel_with_deb_info"
-			},
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		},
-		{
-			"type": "shell",
-			"label": "Run CMake (Visual Studio 2022)",
+			"label": "Configure (Visual Studio 2022)",
 			"command": "cmake",
 			"args": [
 				"../..",
@@ -193,19 +171,6 @@
 				  }
 				}
 			  ]
-		},
-		{
-			"type": "shell",
-			"label": "Update Submodules",
-			"command": "git submodule update --remote",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "dedicated",
-				"showReuseMessage": true,
-				"clear": false
-			}
 		}
 	]
 }

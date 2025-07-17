@@ -19,3 +19,5 @@ add_executable(${PROJECT_NAME} src/main.c)
 # endif()
 
 add_subdirectory(src)
+
+install(TARGETS zno RUNTIME DESTINATION .)

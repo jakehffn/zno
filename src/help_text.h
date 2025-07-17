@@ -1,9 +1,7 @@
-# ZNO
-## Zettelkasten NOte tool
+#pragma once
 
-The name was chosen because it is quick to type
+#include "ansi.h"
 
-```
 static const char* zno_help_text = 
     "Usage: " ANSI_COLOR(YELLOW, "zno") " [options]                                         \n"
     "       " ANSI_COLOR(YELLOW, "zno") " <command> [<args>]                                \n"
@@ -28,8 +26,3 @@ static const char* zno_help_text =
     "   " ANSI_COLOR(YELLOW, "help") "        Display this help text. Does not create note. \n"
     "                                                                                       \n"
     "See --help from sub-commands for more about that command                               \n";
-```
-
-## Building and Installing
-
-This project is uses cmake. VSCode tasks are provided specifically for the `ninja` build system
