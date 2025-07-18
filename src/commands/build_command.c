@@ -40,4 +40,5 @@ void build_command(int argc, char* argv[]) {
 
 bool it_func(const char* path, DIR* dir, struct dirent* entry, void* usr_data) {
     printf("%s\n", entry->d_name);
+    return true;
 }

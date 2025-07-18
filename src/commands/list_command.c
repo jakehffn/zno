@@ -1,15 +1,8 @@
 #include "list_command.h"
 
 void list_command(int argc, char* argv[]) {
-    bool should_create_note = true;
-    bool open_note_after_create = true;
-
-    char* note_content = NULL;
-    char* note_tags = NULL;
-    char* note_title = NULL;
-
-    char non_create_action = 0;
-    char* non_create_arg = NULL;
+    char action = 0;
+    char* action_arg = NULL;
 
     int opt;
     static struct option long_options[] = {
@@ -34,11 +27,9 @@ void list_command(int argc, char* argv[]) {
             }
             // Search
             case 's': {
-                should_create_note = false;
-
-                if (!non_create_action) {
-                    non_create_action = opt;
-                    non_create_arg = strdup(arg);
+                if (!action) {
+                    action = opt;
+                    action_arg = strdup(arg);
                 }
                 break;
             }
@@ -46,19 +37,7 @@ void list_command(int argc, char* argv[]) {
         }
     }
 
-    const char* zno_dir = getenv(ZNO_DIR);
-    if (zno_dir == NULL) {
-        print_error("env variable " ZNO_DIR " is not set");
-        return;
-    }
-
-    const char* zno_editor_cmd = getenv(ZNO_EDITOR_CMD);
-    if (zno_editor_cmd == NULL) {
-        print_warning("env variable " ZNO_EDITOR_CMD " is not set\ndefaulting to \"code\"");
-        zno_editor_cmd = "code";
-    }
-
-    switch(non_create_action) {
+    switch(action) {
         case 's': {
             printf("Searching notes\n");
             break;
@@ -75,6 +54,63 @@ void list_command(int argc, char* argv[]) {
             printf("Counting tags\n");
             break;
         }
-        default: break;
+        default: {
+            list_last_notes();
+            break;
+        }
     }
+}
+
+void list_last_notes() {
+    const char* zno_dir = getenv(ZNO_DIR);
+    if (zno_dir == NULL) {
+        print_error("env variable " ZNO_DIR " is not set");
+        return;
+    }
+
+    size_t max_notes = 10;
+    size_t list_size = sizeof(char)*(ZNO_FILENAME_LENGTH+1) * max_notes;
+    note_list list = {
+        malloc(list_size),
+        0,
+        max_notes
+    };
+    memset(list.items, 0, list_size);
+
+    iterate_directory(zno_dir, get_recent, &list);
+
+    for (size_t it =  0; it < list.size; ++it) {
+        const size_t visible_tags_width = 25;
+        const size_t visible_title_width = 40;
+        printf(ANSI_COLOR(BLUE, "%*s") " | " ANSI_COLOR(MAGENTA, "%-*s") " | " ANSI_COLOR(CYAN, "%-*s") " | %s\\%s \n", 
+            ZNO_FILENAME_LENGTH, list.items[it], visible_tags_width, "tag_1, tag_3, taggy, tagoo", visible_title_width, "This was a good note for sure", zno_dir, list.items[it]);
+    }
+
+    if (max_notes > 0) {
+        free(list.items);
+    }
+}
+
+bool get_recent(const char* path, DIR* dir, struct dirent* entry, void* user_data) {
+    char tmp_buf[ZNO_FILENAME_LENGTH+1];
+
+    note_list* list = (note_list*) user_data;
+
+    size_t insert_pos = 0;
+    while (insert_pos < list->size && insert_pos < list->max_size && strcmp(entry->d_name, list->items[insert_pos]) <= 0) {
+        ++insert_pos;
+    }
+
+    if (insert_pos < list->max_size) {
+        size_t reverse_it = list->max_size - 1;
+
+        while (reverse_it > insert_pos) {
+            strcpy(list->items[reverse_it], list->items[reverse_it - 1]);
+            --reverse_it;
+        }
+        strcpy(list->items[insert_pos], entry->d_name);
+        list->size = (list->size + 1 > list->max_size) ? list->max_size : list->size + 1;
+    }
+
+    return true;
 }
