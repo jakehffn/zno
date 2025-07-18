@@ -78,7 +78,7 @@ void default_command(int argc, char* argv[]) {
         {"help", no_argument, NULL, 'h'},
         {0, 0, 0, 0}
     };
-    while ((opt = getopt_long(argc, argv, "vhn:t:T:s:l::L::c::", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "vhn::t:T:", long_options, NULL)) != -1) {
         char* arg = optarg;
         switch (opt) {
             case 'v': {
@@ -92,7 +92,7 @@ void default_command(int argc, char* argv[]) {
             }
             // New
             case 'n': {
-                note_content = strdup(optarg);
+                note_content = get_optional_arg(arg, argc, argv);
                 open_note_after_create = false;
                 break;
             }
@@ -118,7 +118,7 @@ void default_command(int argc, char* argv[]) {
 
     const char* zno_editor_cmd = getenv(ZNO_EDITOR_CMD);
     if (zno_editor_cmd == NULL) {
-        print_warning("env variable " ZNO_EDITOR_CMD " is not set\ndefaulting to \"code\"");
+        print_warning("env variable " ZNO_EDITOR_CMD " is not set\n    defaulting to \"code\"");
         zno_editor_cmd = "code";
     }
 
