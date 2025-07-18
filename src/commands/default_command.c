@@ -1,67 +1,5 @@
 #include "default_command.h"
 
-char* create_note(const char* content, const char* title, char* tags) {
-    const char* zno_dir = getenv(ZNO_DIR);
-    if (zno_dir == NULL) {
-        print_error("env variable " ZNO_DIR " is not set");
-        return NULL;
-    }
-
-    const char* file_name = get_timestamp_str();
-
-    static char path[PATH_MAX+1];
-    snprintf(path, PATH_MAX, "%s\\%s.md", zno_dir, file_name);
-
-    FILE* fp = fopen(path, "a");
-
-    if (fp == NULL) {
-        print_error("Failed to open file %s\n    %s", path, strerror(errno));
-        return NULL;
-    }
-
-    fprintf(fp, "---\n");
-
-    if (title) {
-        fprintf(fp, "title: %s\n", title);
-    }
-
-    fprintf(fp, "tags:\n");
-    if (tags) {
-        char* tag = tags;
-        bool exit = false;
-        for (char* c = tags;; ++c) {
-            if ((*c == ',' || (exit = (*c == 0)))) {
-                if (tag != c) {
-                    // Trim tag begining
-                    while (*tag == ' ') ++tag;
-                    // Trim tag end
-                    char* t = c;
-                    while (*(--t) == ' ') *t = 0;
-                    *c = 0;
-                    fprintf(fp, "  - %s\n", tag);
-                }
-                tag = c+1;
-            }
-            
-            if (exit) break;
-        }
-    }
-
-    fprintf(fp, "---\n\n");
-
-    if (title) {
-        fprintf(fp, "# %s\n", title);
-    }
-
-    if (content) {
-        fprintf(fp, content);
-    }
-
-    fclose(fp);
-
-    return path;
-}
-
 void default_command(int argc, char* argv[]) {
     bool open_note_after_create = true;
 
@@ -122,9 +60,11 @@ void default_command(int argc, char* argv[]) {
         zno_editor_cmd = "code";
     }
 
-    const char* path = create_note(note_content, note_title, note_tags);
+    const char* timestamp = create_note(note_content, note_title, note_tags);
+    static char path[PATH_MAX+1];
+    snprintf(path, PATH_MAX, "%s\\%s.md", zno_dir, timestamp);
 
-    if (open_note_after_create && path) {
+    if (open_note_after_create && timestamp) {
         char command_buf[PATH_MAX + 128];
 
         strcpy(command_buf, zno_editor_cmd);
@@ -148,8 +88,74 @@ void default_command(int argc, char* argv[]) {
         system(command_buf);
     }
 
+    static char relative_path[PATH_MAX+1];
+    snprintf(relative_path, PATH_MAX, ".\\%s.md", timestamp);
+    printf("%s\n", relative_path);
+
     if (note_content)   free(note_content);
     if (note_tags)      free(note_tags);
     if (note_title)     free(note_title);
     if (non_create_arg) free(non_create_arg);
+}
+
+const char* create_note(const char* content, const char* title, char* tags) {
+    const char* zno_dir = getenv(ZNO_DIR);
+    if (zno_dir == NULL) {
+        print_error("env variable " ZNO_DIR " is not set");
+        return NULL;
+    }
+
+    const char* timestamp = get_timestamp_str();
+
+    static char path[PATH_MAX+1];
+    snprintf(path, PATH_MAX, "%s\\%s.md", zno_dir, timestamp);
+
+    FILE* fp = fopen(path, "a");
+
+    if (fp == NULL) {
+        print_error("Failed to open file %s\n    %s", path, strerror(errno));
+        return NULL;
+    }
+
+    fprintf(fp, "---\n");
+
+    if (title) {
+        fprintf(fp, "title: %s\n", title);
+    }
+
+    fprintf(fp, "tags:\n");
+    if (tags) {
+        char* tag = tags;
+        bool exit = false;
+        for (char* c = tags;; ++c) {
+            if ((*c == ',' || (exit = (*c == 0)))) {
+                if (tag != c) {
+                    // Trim tag begining
+                    while (*tag == ' ') ++tag;
+                    // Trim tag end
+                    char* t = c;
+                    while (*(--t) == ' ') *t = 0;
+                    *c = 0;
+                    fprintf(fp, "  - %s\n", tag);
+                }
+                tag = c+1;
+            }
+            
+            if (exit) break;
+        }
+    }
+
+    fprintf(fp, "---\n\n");
+
+    if (title) {
+        fprintf(fp, "# %s\n", title);
+    }
+
+    if (content) {
+        fprintf(fp, content);
+    }
+
+    fclose(fp);
+
+    return timestamp;
 }
