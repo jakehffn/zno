@@ -1,6 +1,10 @@
 #pragma once
 
-#include "ansi.h"
+#include "util.h"
+
+#define ZNO_VERSION "v0.0.0"
+#define ZNO_DIR "ZNO_DIR"
+#define ZNO_EDITOR_CMD "ZNO_EDITOR_CMD"
 
 static const char* zno_help_text = 
     "Usage: " ANSI_COLOR(YELLOW, "zno") " [options]                                         \n"
@@ -14,15 +18,20 @@ static const char* zno_help_text =
     "   -t <tags>     = Add tags (comma-separated) to new note.                             \n"
     "   -T <title>    = Add title to new note.                                              \n"
     "                                                                                       \n"
+    "Available commands                                                                     \n"
+    "   " ANSI_COLOR(YELLOW, "init") "        Create empty notebox                          \n"
+    "   " ANSI_COLOR(YELLOW, "build") "       Build metadata pages and webpages             \n"
+    "   " ANSI_COLOR(YELLOW, "list") "        Lists notes                                   \n"
+    "   " ANSI_COLOR(YELLOW, "help") "        Display this help text. Does not create note. \n"
+    "                                                                                       \n"
+    "See --help from sub-commands for more about that command                               \n";
+
+static const char* list_help_text = 
+    "Usage: " ANSI_COLOR(YELLOW, "zno list") " [options]                                    \n"
+    "                                                                                       \n"
+    "Options:                                                                               \n"
     "   -s <term>     = Search for term within tags and note bodies.                        \n"
     "   -l [<tag>]    = List tags. If a tag is specified, list notes with                   \n"
     "                         that tag                                                      \n"
     "   -L [<tag>]    = List global lists from notes. If tag is specified,                  \n"
-    "                         only show that specific global list.                          \n"
-    "                                                                                       \n"
-    "Available commands                                                                     \n"
-    "   " ANSI_COLOR(YELLOW, "init") "        Create empty notebox                          \n"
-    "   " ANSI_COLOR(YELLOW, "build") "       Build metadata pages and webpages             \n"
-    "   " ANSI_COLOR(YELLOW, "help") "        Display this help text. Does not create note. \n"
-    "                                                                                       \n"
-    "See --help from sub-commands for more about that command                               \n";
+    "                         only show that specific global list.                          \n";

@@ -3,7 +3,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_sources(${PROJECT_NAME} PUBLIC
-    util.c
+    "default_command.c"
+    "build_command.c"
+    "init_command.c"
+    "list_command.c"
+    "help_command.c"
 )
-
-add_subdirectory(commands)

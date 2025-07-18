@@ -1,4 +1,20 @@
-#include "zno.h"
+#include "default_command.h"
+#include "init_command.h"
+#include "build_command.h"
+#include "list_command.h"
+#include "help_command.h"
+
+struct {
+    const char* name;
+    void (*func)(int argc, char* argv[]);
+} typedef zno_command;
+
+static const zno_command zno_commands[] = {
+    {"build", build_command},
+    {"init", init_command},
+    {"list", list_command},
+    {"help", help_command}
+};
 
 int main(int argc, char* argv[]) {
     // Check for sub command
