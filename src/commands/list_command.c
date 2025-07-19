@@ -82,8 +82,24 @@ void list_last_notes() {
     for (size_t it =  0; it < list.size; ++it) {
         const size_t visible_tags_width = 25;
         const size_t visible_title_width = 40;
-        printf(ANSI_COLOR(BLUE, ".\\%*s") " | " ANSI_COLOR(MAGENTA, "%-*s") " | " ANSI_COLOR(CYAN, "%-*s") " | %s\\%s \n", 
-            ZNO_FILENAME_LENGTH, list.items[it], visible_tags_width, "tag_1, tag_3, taggy, tagoo", visible_title_width, "This was a good note for sure", zno_dir, list.items[it]);
+        
+        const char* title = "This was a good note for sure";
+        const char* tags = "tag_1, tag_3, taggy, tagoo";
+
+        printf(ANSI_COLOR(BRIGHT_BLACK, ".\\%*s %s\\%s \n"), 
+            ZNO_FILENAME_LENGTH, list.items[it], zno_dir, list.items[it]
+        );
+
+        if (title) {
+            printf(ANSI_COLOR(BRIGHT_BLACK, "    Title: ") "%-*s\n", 
+                visible_title_width, "This was a good note for sure"
+            );
+        }
+        if (tags) {
+            printf(ANSI_COLOR(BRIGHT_BLACK, "     Tags: ") ANSI_COLOR(MAGENTA, "%-*s") "\n", 
+                visible_tags_width, "tag_1, tag_3, taggy, tagoo"
+            );
+        }
     }
 
     if (max_notes > 0) {
