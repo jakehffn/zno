@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "util.h"
+#include "frontmatter.h"
 
 struct {
     char (*items)[ZNO_FILENAME_LENGTH+1];

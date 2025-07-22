@@ -82,24 +82,66 @@ void list_last_notes() {
     for (size_t it =  0; it < list.size; ++it) {
         const size_t visible_tags_width = 25;
         const size_t visible_title_width = 40;
+
+        const char* file_name = list.items[it];
+        static char file_path[PATH_MAX+1];
+        snprintf(file_path, PATH_MAX, "%s\\%s", zno_dir, file_name);
+
+        char* note_buf = NULL;
+        FILE* fp = fopen(file_path, "r");
+        if (fp != NULL) {
+            if (fseek(fp, 0L, SEEK_END) == 0) {
+                // Get length of file
+                long bufsize = ftell(fp);
+
+                note_buf = malloc(sizeof(char) * (bufsize + 1));
+
+                fseek(fp, 0L, SEEK_SET);
+
+                size_t new_length = fread(note_buf, sizeof(char), bufsize, fp);
+                if (ferror(fp) != 0) {
+                    print_error("Failed to read file %s", file_path);
+                } else {
+                    note_buf[new_length++] = '\0';
+                }
+            }
+            fclose(fp);
+        }
+
+        frontmatter fm;
+        if (parse_frontmatter(note_buf, &fm)) {
+            printf(ANSI_BG(BRIGHT_BLACK, ".\\%*s - %s\\%s") "\n", 
+                ZNO_FILENAME_LENGTH, list.items[it], zno_dir, list.items[it]
+            );
+
+            // printf("    num_tags: %zu, publish: %s, frontmatter_size: %zu\n", fm.num_tags, (fm.publish) ? "TRUE" : "FALSE", fm.frontmatter_size);
+    
+            if (fm.title) {
+                printf(ANSI_BG(BRIGHT_BLACK, "    Title:") " %-*s\n", 
+                    visible_title_width, fm.title
+                );
+            }
+            if (fm.num_tags > 0) {
+                printf(ANSI_BG(BRIGHT_BLACK, "     Tags:") " ", visible_tags_width);
+
+                for (size_t it = 0; it < fm.num_tags; ++it) {
+                    printf(ANSI_COLOR(MAGENTA, "%s"), fm.tags[it]);
+                    if (it != fm.num_tags - 1) {
+                        printf(", ");
+                    }
+                }
+                printf("\n");
+            }
+
+            if (fm.publish) {
+                printf(ANSI_BG(BRIGHT_BLACK, "          ") ANSI_COLOR(CYAN, " Published") "\n");
+            }
+
+            printf("\n");
+        }
         
-        const char* title = "This was a good note for sure";
-        const char* tags = "tag_1, tag_3, taggy, tagoo";
 
-        printf(ANSI_COLOR(BRIGHT_BLACK, ".\\%*s %s\\%s \n"), 
-            ZNO_FILENAME_LENGTH, list.items[it], zno_dir, list.items[it]
-        );
-
-        if (title) {
-            printf(ANSI_COLOR(BRIGHT_BLACK, "    Title: ") "%-*s\n", 
-                visible_title_width, "This was a good note for sure"
-            );
-        }
-        if (tags) {
-            printf(ANSI_COLOR(BRIGHT_BLACK, "     Tags: ") ANSI_COLOR(MAGENTA, "%-*s") "\n", 
-                visible_tags_width, "tag_1, tag_3, taggy, tagoo"
-            );
-        }
+        free(note_buf);
     }
 
     if (max_notes > 0) {
