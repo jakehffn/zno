@@ -10,7 +10,7 @@ void note_matching_command(int argc, char* argv[], const char* help_text, matchi
     int opt;
     static struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
-        {"tag", required_argument, NULL, 't'},
+        {"tags", required_argument, NULL, 't'},
         {0, 0, 0, 0}
     };
     while ((opt = getopt_long(argc, argv, "ht:", long_options, NULL)) != -1) {
@@ -100,19 +100,17 @@ bool read_note(const char* file_name, const char* tag_filter_str, const char* ti
         fclose(fp);
     }
 
-
-
     bool result = true;
     frontmatter fm;
-    char buf[256];
-    strcpy(buf, "sony | (youtube & ideas)");
+    char* tag_filter_copy = strdup(tag_filter_str);
     if (parse_frontmatter(note_buf, &fm) 
-        && tag_filter(buf, buf + strlen(buf), fm.num_tags, fm.tags)
+        && (!tag_filter_str || tag_filter(tag_filter_copy, tag_filter_copy + strlen(tag_filter_copy), fm.num_tags, fm.tags))
     ) {
         result = it_proc(file_name, &fm, note_buf, usr_data);
     }
     
-    free(note_buf);
+    if (note_buf) free(note_buf);
+    if (tag_filter_copy) free(tag_filter_copy);
 
     return result;
 }
