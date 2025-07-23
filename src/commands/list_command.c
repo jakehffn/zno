@@ -117,12 +117,12 @@ void list_last_notes() {
             // printf("    num_tags: %zu, publish: %s, frontmatter_size: %zu\n", fm.num_tags, (fm.publish) ? "TRUE" : "FALSE", fm.frontmatter_size);
     
             if (fm.title) {
-                printf(ANSI_BG(BRIGHT_BLACK, "    Title:") " %-*s\n", 
+                printf("  " ANSI_BG(BRIGHT_BLACK, "Title:") " %-*s\n", 
                     visible_title_width, fm.title
                 );
             }
             if (fm.num_tags > 0) {
-                printf(ANSI_BG(BRIGHT_BLACK, "     Tags:") " ", visible_tags_width);
+                printf("  " ANSI_BG(BRIGHT_BLACK, " Tags:") " ", visible_tags_width);
 
                 for (size_t it = 0; it < fm.num_tags; ++it) {
                     printf(ANSI_COLOR(MAGENTA, "%s"), fm.tags[it]);
@@ -134,7 +134,7 @@ void list_last_notes() {
             }
 
             if (fm.publish) {
-                printf(ANSI_BG(BRIGHT_BLACK, "          ") ANSI_COLOR(CYAN, " Published") "\n");
+                printf("  " ANSI_BG(BRIGHT_BLACK, "      ") ANSI_COLOR(CYAN, " Published") "\n");
             }
 
             printf("\n");

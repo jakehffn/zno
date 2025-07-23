@@ -44,3 +44,5 @@ void iterate_directory(const char* path, bool(*it_func)(const char* path, DIR* d
 
 char* get_timestamp_str(void);
 char* get_optional_arg(char* arg, int argc, char* argv[]);
+
+char* trim(char* str);

@@ -1,6 +1,11 @@
 #pragma once
 
+#include <stdlib.h>
 #include <ctype.h>
+
+#include <string.h>
+
+#include "util.h"
 
 struct {
     const char* title;
@@ -10,4 +15,4 @@ struct {
     size_t frontmatter_size;
 } typedef frontmatter;
 
-bool parse_frontmatter(char* frontmatter_buf, frontmatter* out);
+char* parse_frontmatter(char* frontmatter_buf, frontmatter* out);

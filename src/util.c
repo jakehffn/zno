@@ -94,3 +94,17 @@ char* get_optional_arg(char* arg, int argc, char* argv[]) {
     
     return arg;
 }
+
+char* trim(char* str) {
+    if (str == NULL) {
+        return NULL;
+    }
+
+    char* start = str;
+    while (*start && *start == ' ' || *(start) == '\t') ++start;
+    char* it = start + strlen(start);
+    while (it != start && (*it == 0 || *it == ' ' || *it == '\t')) --it;
+    *(it + 1) = 0;
+
+    return start;
+}
