@@ -3,15 +3,8 @@
 #include "config.h"
 #include "util.h"
 #include "frontmatter.h"
-
-struct {
-    char (*items)[ZNO_FILENAME_LENGTH+1];
-    size_t size;
-    size_t max_size;
-} typedef note_list;
+#include "note_matching_command.h"
 
 void list_command(int argc, char* argv[]);
 
-void list_last_notes();
-
-bool get_recent(const char* path, DIR* dir, struct dirent* entry, void* user_data);
+bool matching_it_proc(const char* note_name, frontmatter* fm, char* note_body, void* usr_data);

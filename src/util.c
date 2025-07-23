@@ -40,13 +40,13 @@ bool ensure_directory(const char* path) {
     return true;
 }
 
-void iterate_directory(const char* path, bool(*it_func)(const char* path, DIR* dir, struct dirent* entry, void* user_data), void* user_data) {
+void iterate_directory(const char* path, directory_it_proc_t it_proc, void* user_data) {
     DIR* dir = opendir(path);
-    if (dir && it_func) {
+    if (dir && it_proc) {
         struct dirent* entry = NULL;
         while(dir) {
             if ((entry = readdir(dir)) != NULL) {
-                if (!it_func(path, dir, entry, user_data)) break;
+                if (!it_proc(path, dir, entry, user_data)) break;
             } else if (errno == 0) {
                 break;
             } else {

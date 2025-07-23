@@ -40,7 +40,9 @@ void print_error(const char* fmt, ...);
 void print_warning(const char* fmt, ...);
 void replace_char(char* str, char find, char replace);
 bool ensure_directory(const char* path);
-void iterate_directory(const char* path, bool(*it_func)(const char* path, DIR* dir, struct dirent* entry, void* usr_data), void* user_data);
+
+typedef bool(*directory_it_proc_t)(const char* path, DIR* dir, struct dirent* entry, void* usr_data);
+void iterate_directory(const char* path, directory_it_proc_t it_proc, void* user_data);
 
 char* get_timestamp_str(void);
 char* get_optional_arg(char* arg, int argc, char* argv[]);
