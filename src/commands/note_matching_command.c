@@ -104,8 +104,8 @@ bool read_note(const char* file_name, const char* tag_filter_str, const char* ti
     frontmatter fm;
     char* tag_filter_copy = strdup(tag_filter_str);
     if (parse_frontmatter(note_buf, &fm) 
-        && (!tag_filter_str || tag_filter(tag_filter_copy, tag_filter_copy + strlen(tag_filter_copy), fm.num_tags, fm.tags))
-    ) {
+        && (tag_filter_str != NULL || tag_filter(tag_filter_copy, tag_filter_copy + strlen(tag_filter_copy), fm.num_tags, fm.tags))
+    ) { 
         result = it_proc(file_name, &fm, note_buf, usr_data);
     }
     
